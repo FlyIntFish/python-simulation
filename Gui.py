@@ -3,6 +3,7 @@ import tkinter as tk
 from tkinter import *
 import os
 from tkinter import messagebox
+from turtle import speed
 from utility import *
 from tkinter.constants import NSEW
 from Sprite import Sprite
@@ -41,15 +42,14 @@ class Gui:
         self.__toolbar.grid(row=1, column=0, columnspan=3, sticky=NSEW)
 
     def __initToolbar(self):
-        nextColumn = 0
         self.__createToolbar()
-        nextColumn = self.__addToolbarButtons(nextColumn)
-        nextColumn = self.__addToolbarTimeFactorSlider(nextColumn)
+        self.__addToolbarButtons()
+        self.__initToolbarSliders()
 
     def placeholder(self):
         pass
     
-    def __addToolbarButtons(self, column):
+    def __addToolbarButtons(self):
         self.__toolbar_images = []
         for image, command in (
                 ("reload.png", self.__app.removeAllBodies),
@@ -62,26 +62,36 @@ class Gui:
                 self.__toolbar_images.append(image)
                 button = tk.Button(self.__toolbar, image=image,
                                         command=command)
-                button.grid(row=0, column=column)
-                column += 1 
+                button.grid(row=0, column=self.__toolbar.grid_size()[0])
             except tk.TclError as err:
                 print(err)                                              # problem with file 
         self.__toolbar.grid(row=0, column=0, columnspan=2, sticky=tk.NSEW)
-        return column
 
-    def __addToolbarTimeFactorSlider(self, column):
-        current_value = tk.DoubleVar()
-        self.__speedFactorSlider = tk.Scale(
-            self.__toolbar,
+    def __addToolbarFrameForSliders(self):
+        self.__slidersToolbarFrame = tk.Frame(self.__toolbar)
+        self.__slidersToolbarFrame.grid(row=0, column=self.__toolbar.grid_size()[0])
+
+    def __addToolbarTimeFactorSlider(self):
+        newColumn = self.__slidersToolbarFrame.grid_size()[0]
+        speedFactorSlider = tk.Scale(
+            self.__slidersToolbarFrame,
             orient='horizontal',
             from_ = 1,
             to = self.__app.MAX_SPEED_FACTOR,
-            command = lambda event: setattr(self.__app, 'speedFactor', self.__speedFactorSlider.get()), 
-            variable = current_value
+            command = lambda event: setattr(self.__app, 'speedFactor', speedFactorSlider.get()), 
+            variable = tk.DoubleVar()
         )
-        self.__speedFactorSlider.grid(row=0, column=column)
-        return column + 1
+        speedFactorSlider.grid(row=0, column=newColumn)
+        speedFactorLabel = tk.Label(
+            self.__slidersToolbarFrame,
+            text="Speed factor"
+        )
+        speedFactorLabel.grid(row=1, column=newColumn)
 
+    def __initToolbarSliders(self):
+        self.__addToolbarFrameForSliders()
+        self.__addToolbarTimeFactorSlider()
+    
     def __initOptionsBar(self):
         self.__root["menu"] = self.__menuBar
         fileMenu = tk.Menu(self.__menuBar)
