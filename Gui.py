@@ -3,10 +3,8 @@ import tkinter as tk
 from tkinter import *
 import os
 from tkinter import messagebox
-from turtle import speed
 from utility import *
 from tkinter.constants import NSEW
-from Sprite import Sprite
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from App import App

@@ -1,5 +1,3 @@
-from multiprocessing.sharedctypes import Value
-from turtle import distance
 from utility import *
 
 # Position defines center of sprite, i.e. center of circle 
