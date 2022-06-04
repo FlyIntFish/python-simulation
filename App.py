@@ -5,10 +5,10 @@ from Body import *
 
 class CelestialBody:
 
-    __maxPointsInTrajectory = 300
+    __maxPointsInTrajectory = 3
     @classmethod
-    def setMaxPointsInTrajectory(cls, value):
-        if value < 1:
+    def setPointsInTrajectory(cls, value):
+        if value < 0:
             raise ValueError("MaxPointsInTrajectory cannot be lower than 1")
         cls.__maxPointsInTrajectory = value
 
@@ -20,7 +20,7 @@ class CelestialBody:
     
     def updateTrajectory(self):
         self.__trajectory.append(copy.deepcopy(self.__body.position))
-        if len(self.__trajectory) > CelestialBody.__maxPointsInTrajectory:
+        while len(self.__trajectory) > CelestialBody.__maxPointsInTrajectory:
             self.__app.removeShape(self.__trajectoryIDs[0])
             self.__trajectory.pop(0)
             self.__trajectoryIDs.pop(0)
@@ -36,7 +36,7 @@ class CelestialBody:
 
     def eraseTrajectory(self):
         for i in self.__trajectoryIDs:
-            app.removeShape(i)
+            self.__app.removeShape(i)
         self.__trajectoryIDs = []
         self.__trajectory = []
 
@@ -57,11 +57,41 @@ class App:
         self.__MAX_SPEED_FACTOR = 20
         self.__UPDATE_TRAJECTORY_DT = 0.2  
         self.__MAX_TRAJECTORY_POINTS = 1000
+        self.__MIN_TRAJECTORY_POINTS = 3
         self.__timeToUpdateTrajectory = self.__UPDATE_TRAJECTORY_DT
+
+    @staticmethod
+    def setPointsInTrajectory(value):
+        CelestialBody.setPointsInTrajectory(value)
+
+    @staticmethod
+    def calculateForceVector(body1, body2) -> Vector:
+        deltaS = body2.position - body1.position
+        distanceValue =  Vector.distance(body1.position, body2.position).len()
+        if distanceValue == 0:
+            return Vector(0,0)
+        forceValue = Const.getGValue() * body1.mass * body2.mass / distanceValue
+        force = Vector(
+            forceValue * deltaS.x / distanceValue,
+            forceValue * deltaS.y / distanceValue
+        )
+        return force
+
+    @property
+    def MIN_TRAJECTORY_POINTS(self):
+        return self.__MIN_TRAJECTORY_POINTS
+
+    @MIN_TRAJECTORY_POINTS.setter
+    def MIN_TRAJECTORY_POINTS(self, value):
+        if self.MIN_TRAJECTORY_POINTS:
+            raise ValueError("MIN_TRAJECTORY_POINTS is constant and cannot be changed")
+        elif value < 3:
+            raise ValueError("MIN_TRAJECTORY_POINTS cannot be lower than 3")
+        self.MIN_TRAJECTORY_POINTS = value
 
     @property
     def MAX_TRAJECTORY_POINTS(self):
-        return self.__MAX_SPEED_FACTOR
+        return self.__MAX_TRAJECTORY_POINTS
 
     @MAX_TRAJECTORY_POINTS.setter
     def MAX_TRAJECTORY_POINTS(self, value):
@@ -119,21 +149,6 @@ class App:
         body = Body(radius, mass, color, position, initSpeed)
         id = self.__gui.addSprite(body._sprite)
         self.__celestialBodies.update({id : CelestialBody(body, self)})
-
-    # sila grawitacji jako dwuwymiarowy wektor [x,y], wynikowy wektor jest wzgledem pierwszego ciala,
-    # tzn. jest to sila oddzialowujaca na to cialo przez body2
-    @staticmethod
-    def calculateForceVector(body1, body2) -> Vector:
-        deltaS = body2.position - body1.position
-        distanceValue =  Vector.distance(body1.position, body2.position).len()
-        if distanceValue == 0:
-            return Vector(0,0)
-        forceValue = Const.getGValue() * body1.mass * body2.mass / distanceValue
-        force = Vector(
-            forceValue * deltaS.x / distanceValue,
-            forceValue * deltaS.y / distanceValue
-        )
-        return force
 
     def __calculateForce(self, bodyId: int):
         force = Vector()

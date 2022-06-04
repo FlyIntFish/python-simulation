@@ -6,10 +6,6 @@ import os
 from tkinter import messagebox
 from utility import *
 from tkinter.constants import NSEW
-from typing import TYPE_CHECKING
-if TYPE_CHECKING:
-    from App import App
-    from App import CelestialBody
 
 class Gui:
 
@@ -98,9 +94,20 @@ class Gui:
             variable_=variable
         )
 
+    def __addToolbarTrajectoryPointsSlider(self):
+        variable = tk.IntVar()
+        self.__addToolbarSlider(
+        from__=self.__app.MIN_TRAJECTORY_POINTS,
+        to_=self.__app.MAX_TRAJECTORY_POINTS,
+        command_=lambda event: self.__app.setPointsInTrajectory(variable.get()),
+        labelText_="Trajectory length",
+        variable_=variable
+        )
+
     def __initToolbarSliders(self):
         self.__addToolbarFrameForSliders()
         self.__addToolbarTimeFactorSlider()
+        self.__addToolbarTrajectoryPointsSlider()
     
     def __initOptionsBar(self):
         self.__root["menu"] = self.__menuBar
