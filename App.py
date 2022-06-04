@@ -6,6 +6,11 @@ from Body import *
 class CelestialBody:
 
     __maxPointsInTrajectory = 300
+    @classmethod
+    def setMaxPointsInTrajectory(cls, value):
+        if value < 1:
+            raise ValueError("MaxPointsInTrajectory cannot be lower than 1")
+        cls.__maxPointsInTrajectory = value
 
     def __init__(self, body, app):
         self.__body = body
@@ -51,7 +56,20 @@ class App:
         self.__resetClock()
         self.__MAX_SPEED_FACTOR = 20
         self.__UPDATE_TRAJECTORY_DT = 0.2  
+        self.__MAX_TRAJECTORY_POINTS = 1000
         self.__timeToUpdateTrajectory = self.__UPDATE_TRAJECTORY_DT
+
+    @property
+    def MAX_TRAJECTORY_POINTS(self):
+        return self.__MAX_SPEED_FACTOR
+
+    @MAX_TRAJECTORY_POINTS.setter
+    def MAX_TRAJECTORY_POINTS(self, value):
+        if self.MAX_TRAJECTORY_POINTS:
+            raise ValueError("MAX_TRAJECTORY_POINTS is constant and cannot be changed")
+        elif value < 1:
+            raise ValueError("MAX_TRAJECTORY_POINTS cannot be lower than 1")
+        self.MAX_TRAJECTORY_POINTS = value
 
     @property
     def MAX_SPEED_FACTOR(self):
@@ -60,7 +78,9 @@ class App:
     @MAX_SPEED_FACTOR.setter
     def MAX_SPEED_FACTOR(self, value):
         if self.__MAX_SPEED_FACTOR:
-            raise ValueError("MAX_SPEED_FACTOR is constans and cannot be changed")
+            raise ValueError("MAX_SPEED_FACTOR is constant and cannot be changed")
+        elif value < 1:
+            raise ValueError("MAX_SPEED_FACTOR cannot be lower than 1")
         self.__MAX_SPEED_FACTOR = value
 
     @property

@@ -1,4 +1,5 @@
 from __future__ import annotations
+from cProfile import label
 import tkinter as tk
 from tkinter import *
 import os
@@ -8,6 +9,7 @@ from tkinter.constants import NSEW
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from App import App
+    from App import CelestialBody
 
 class Gui:
 
@@ -69,22 +71,32 @@ class Gui:
         self.__slidersToolbarFrame = tk.Frame(self.__toolbar)
         self.__slidersToolbarFrame.grid(row=0, column=self.__toolbar.grid_size()[0])
 
-    def __addToolbarTimeFactorSlider(self):
+    def __addToolbarSlider(self, from__, to_, command_, labelText_, variable_):
         newColumn = self.__slidersToolbarFrame.grid_size()[0]
-        speedFactorSlider = tk.Scale(
+        slider = tk.Scale(
             self.__slidersToolbarFrame,
             orient='horizontal',
-            from_ = 1,
-            to = self.__app.MAX_SPEED_FACTOR,
-            command = lambda event: setattr(self.__app, 'speedFactor', speedFactorSlider.get()), 
-            variable = tk.DoubleVar()
+            from_=from__,
+            to=to_,
+            command = command_, 
+            variable = variable_
         )
-        speedFactorSlider.grid(row=0, column=newColumn)
+        slider.grid(row=0, column=newColumn)
         speedFactorLabel = tk.Label(
             self.__slidersToolbarFrame,
-            text="Speed factor"
+            text=labelText_
         )
         speedFactorLabel.grid(row=1, column=newColumn)
+
+    def __addToolbarTimeFactorSlider(self):
+        variable=tk.IntVar()
+        self.__addToolbarSlider(
+            from__=1,
+            to_=self.__app.MAX_SPEED_FACTOR,
+            command_=lambda event: setattr(self.__app, 'speedFactor', variable.get()),
+            labelText_="Speed factor",
+            variable_=variable
+        )
 
     def __initToolbarSliders(self):
         self.__addToolbarFrameForSliders()
