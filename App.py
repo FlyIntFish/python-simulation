@@ -59,6 +59,15 @@ class App:
         self.__MAX_TRAJECTORY_POINTS = 1000
         self.__MIN_TRAJECTORY_POINTS = 3
         self.__timeToUpdateTrajectory = self.__UPDATE_TRAJECTORY_DT
+        self.__newBodyVelocity = Vector()
+        self.__newBodyRadius = 10
+        self.__newBodyColor = "white"
+        self.__newBodyMass = 1000
+        self.__MIN_INIT_BODY_VELOCITY = -30.0
+        self.__MAX_INIT_BODY_VELOCITY = 30.0
+        self.__MAX_BODY_RADIUS = 40
+        self.__MAX_BODY_MASS = 10**6                     
+
 
     @staticmethod
     def setPointsInTrajectory(value):
@@ -76,6 +85,37 @@ class App:
             forceValue * deltaS.y / distanceValue
         )
         return force
+
+    @property
+    def newBodyVelocity(self):
+        return self.__newBodyVelocity
+    
+    @newBodyVelocity.setter
+    def newBodyVelocity(self, velocity : Vector):
+        if (velocity.x < self.__MIN_INIT_BODY_VELOCITY
+            or velocity.y < self.__MIN_INIT_BODY_VELOCITY
+            or velocity.x > self.__MAX_INIT_BODY_VELOCITY
+            or velocity.y > self.__MAX_INIT_BODY_VELOCITY
+        ):
+            raise ValueError(f'initial velocity for new body is out of range [{self.__MIN_INIT_BODY_VELOCITY}, {self.__MAX_INIT_BODY_VELOCITY}]')
+        self.__newBodyVelocity = velocity
+        print(self.__newBodyVelocity)
+
+    @property
+    def MIN_INIT_BODY_VELOCITY(self):
+        return self.__MIN_INIT_BODY_VELOCITY
+
+    @property
+    def MAX_INIT_BODY_VELOCITY(self):
+        return self.__MAX_INIT_BODY_VELOCITY
+
+    @property
+    def MAX_BODY_RADIUS(self):
+        return self.__MAX_BODY_RADIUS
+  
+    @property
+    def MAX_BODY_MASS(self):
+        return self.__MAX_BODY_MASS
 
     @property
     def MIN_TRAJECTORY_POINTS(self):
@@ -145,8 +185,8 @@ class App:
     def __resetClock(self):
         self.__lastTime = time.time()
     
-    def addCelestialBody(self, radius: float, mass: float, position: Vector, color = "white", initSpeed = Vector() ):
-        body = Body(radius, mass, color, position, initSpeed)
+    def addCelestialBody(self, radius: float, mass: float, position: Vector, color: str, initSpeed: Vector):
+        body = Body(radius, mass, color, copy.deepcopy(position), copy.deepcopy(initSpeed))
         id = self.__gui.addSprite(body._sprite)
         self.__celestialBodies.update({id : CelestialBody(body, self)})
 
@@ -200,7 +240,16 @@ class App:
         return self.__gui.addLine(coords_, color_)
 
     def removeShape(self, shapeId):
-        self.__gui.removeShape(shapeId)    
+        self.__gui.removeShape(shapeId) 
+
+    def addUserDefinedCelestialBody(self, position_ : Vector):
+        self.addCelestialBody(
+            radius=self.__newBodyRadius,
+            mass=self.__newBodyMass,
+            position=position_,
+            color=self.__newBodyColor,
+            initSpeed=self.__newBodyVelocity
+        )
 
         
     
@@ -214,7 +263,6 @@ if __name__ == "__main__":
     app = App()
     gui = Gui(root, app)
     app.assignGui(gui)
-    app.addCelestialBody(20, 1, position=Vector(800,400), initSpeed=Vector(6.324,0))
     app.addCelestialBody(30, 10000, position=Vector(200,300), color="blue", initSpeed=Vector(2,0))
     app.addCelestialBody(20, 1, position=Vector(800,200), color="green", initSpeed=Vector(6.324,0))
     app.addCelestialBody(20, 10000, position=Vector(650,200),color="yellow", initSpeed=Vector(6.324,0))

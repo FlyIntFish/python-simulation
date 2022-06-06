@@ -24,6 +24,7 @@ class Gui:
         return cls.__ElementsColors["default_color"]
 
     def __init__(self, root, app : App):
+        self.__INIT_VELOCITY_SLIDERS_LENGTH = 150
         self.__app = app
         self.__root = root
         self.__menuBar = tk.Menu(self.__root)
@@ -60,14 +61,14 @@ class Gui:
                                         command=command)
                 button.grid(row=0, column=self.__toolbar.grid_size()[0])
             except tk.TclError as err:
-                print(err)                                              # problem with file 
+                print(err)                                                  # problem with file 
         self.__toolbar.grid(row=0, column=0, columnspan=2, sticky=tk.NSEW)
 
     def __addToolbarFrameForSliders(self):
         self.__slidersToolbarFrame = tk.Frame(self.__toolbar)
         self.__slidersToolbarFrame.grid(row=0, column=self.__toolbar.grid_size()[0])
 
-    def __addToolbarSlider(self, from__, to_, command_, labelText_, variable_):
+    def __addToolbarSlider(self, from__, to_, command_, labelText_, variable_, length_=None, resolution_=1):
         newColumn = self.__slidersToolbarFrame.grid_size()[0]
         slider = tk.Scale(
             self.__slidersToolbarFrame,
@@ -75,7 +76,9 @@ class Gui:
             from_=from__,
             to=to_,
             command = command_, 
-            variable = variable_
+            variable = variable_,
+            length=length_,
+            resolution=resolution_
         )
         slider.grid(row=0, column=newColumn)
         speedFactorLabel = tk.Label(
@@ -91,7 +94,8 @@ class Gui:
             to_=self.__app.MAX_SPEED_FACTOR,
             command_=lambda event: setattr(self.__app, 'speedFactor', variable.get()),
             labelText_="Speed factor",
-            variable_=variable
+            variable_=variable,
+            length_=100
         )
 
     def __addToolbarTrajectoryPointsSlider(self):
@@ -101,13 +105,40 @@ class Gui:
         to_=self.__app.MAX_TRAJECTORY_POINTS,
         command_=lambda event: self.__app.setPointsInTrajectory(variable.get()),
         labelText_="Trajectory length",
-        variable_=variable
+        variable_=variable,
+        length_=self.__app.MAX_TRAJECTORY_POINTS/5
+        )
+
+    def __addToolbarInitHorizontalVelocitySlider(self):
+        variable = tk.DoubleVar()
+        self.__addToolbarSlider(
+            from__=self.__app.MIN_INIT_BODY_VELOCITY,
+            to_=self.__app.MAX_INIT_BODY_VELOCITY,
+            command_=lambda event: setattr(self.__app, 'newBodyVelocity', Vector(variable.get(), self.__app.newBodyVelocity.y)),
+            labelText_="X velocity",
+            variable_=variable,
+            resolution_=0.2,
+            length_=self.__INIT_VELOCITY_SLIDERS_LENGTH
+        )
+
+    def __addToolbarInitVerticalVelocitySlider(self):
+        variable = tk.DoubleVar()
+        self.__addToolbarSlider(
+            from__=self.__app.MIN_INIT_BODY_VELOCITY,
+            to_=self.__app.MAX_INIT_BODY_VELOCITY,
+            command_=lambda event: setattr(self.__app, 'newBodyVelocity', Vector(self.__app.newBodyVelocity.x, variable.get())),
+            labelText_="Y velocity",
+            variable_=variable,
+            resolution_=0.2,
+            length_=self.__INIT_VELOCITY_SLIDERS_LENGTH
         )
 
     def __initToolbarSliders(self):
         self.__addToolbarFrameForSliders()
         self.__addToolbarTimeFactorSlider()
         self.__addToolbarTrajectoryPointsSlider()
+        self.__addToolbarInitHorizontalVelocitySlider()
+        self.__addToolbarInitVerticalVelocitySlider()
     
     def __initOptionsBar(self):
         self.__root["menu"] = self.__menuBar
@@ -141,6 +172,7 @@ class Gui:
 
     def __initCanvas(self):
         self.__canvas = tk.Canvas(self.__root, background=Gui.colorOf("canvas"))
+        self.__canvas.bind("<Button-1>", lambda event: self.__app.addUserDefinedCelestialBody(position_=Vector(event.x, event.y)))
         self.__canvas.grid(row=1, column=0, padx=0, pady=0, sticky=NSEW)
 
     def __configureColumnAndRows(self):
