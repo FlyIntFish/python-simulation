@@ -133,7 +133,6 @@ class App:
         ):
             raise ValueError(f'initial velocity for new body is out of range [{self.__MIN_INIT_BODY_VELOCITY}, {self.__MAX_INIT_BODY_VELOCITY}]')
         self.__newBodyVelocity = velocity
-        print(self.__newBodyVelocity)
 
     @property
     def MIN_INIT_BODY_VELOCITY(self):
@@ -313,14 +312,13 @@ class App:
                     self.addExistingCelestialBody(
                         CelestialBody(Body.createFromDict(parsed), app))
                 except:
-                    print('err')
+                    print('Cannot read from file')
 
 
     def __createJsonData(self):
         output = ""
         for i in self.__celestialBodies.values():
             output += json.dumps(i.toDict()) + "\n"
-        print(output)
         return output
 
     def saveCurrentStateToFile(self, filename):

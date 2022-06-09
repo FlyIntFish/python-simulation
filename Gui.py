@@ -73,7 +73,7 @@ class Gui:
                                         command=command)
                 button.grid(row=0, column=self.__toolbar.grid_size()[0], sticky=NSEW)
             except tk.TclError as err:
-                print(err)                                                  # problem with file
+                print("cannot open file with image ", err)                                                  # problem with file
         self.__toolbar.grid(row=0, column=0, columnspan=2, sticky=tk.NSEW)
 
     def __addToolbarFrameForSliders(self):
