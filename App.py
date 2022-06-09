@@ -340,8 +340,6 @@ if __name__ == "__main__":
     app = App()
     gui = Gui(root, app)
     app.assignGui(gui)
-    app.addCelestialBody(20, 10000, position=Vector(0,170),color="yellow", initSpeed=Vector(7,3))
-    app.addCelestialBody(20, 10000, position=Vector(50,150),color="red", initSpeed=Vector(7,-3))
     app.update()
 
     root.mainloop()
