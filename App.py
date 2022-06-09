@@ -59,7 +59,7 @@ class App:
         self.__timeAcc = 0                      # accumulator for time
         self.__pause = False
         self.__resetClock()
-        self.__MAX_SPEED_FACTOR = 20
+        self.__MAX_SPEED_FACTOR = 40
         self.__UPDATE_TRAJECTORY_DT = 0.2  
         self.__MAX_TRAJECTORY_POINTS = 750
         self.__MIN_TRAJECTORY_POINTS = 3
@@ -68,7 +68,7 @@ class App:
         self.__newBodyRadius = 10
         self.__fps = 0
         self.__newBodyColor = "white"
-        self.__newBodyMass = 1
+        self.__newBodyMass = 100
         self.__MIN_INIT_BODY_VELOCITY = -30.0
         self.__MAX_INIT_BODY_VELOCITY = 30.0
         self.__MAX_BODY_RADIUS = 40
@@ -84,8 +84,8 @@ class App:
     def calculateForceVector(body1, body2) -> Vector:
         deltaS = body2.position - body1.position
         distanceValue =  Vector.distance(body1.position, body2.position).len()
-        if distanceValue == 0:
-            return Vector(0,0)
+        if distanceValue < body1.radius + body2.radius:
+            distanceValue = body1.radius + body2.radius
         forceValue = Const.getGValue() * body1.mass * body2.mass / distanceValue
         force = Vector(
             forceValue * deltaS.x / distanceValue,

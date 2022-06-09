@@ -20,13 +20,13 @@ class Body:
 
     @property
     def radius(self) -> float:
-        return self._radius
+        return self.sprite.radius
 
     @radius.setter
     def radius(self, newRadius):
         if newRadius <= 0:
             raise ValueError("Radius has to be positive value")
-        self.radius = newRadius
+        self.sprite.radius = newRadius
 
     @property
     def velocity(self) -> float:
@@ -82,14 +82,3 @@ class Body:
             Vector(int(data["posX"]), int(data["posY"])),
             Vector(int(data["velX"]), int(data["velY"]))
         )
-
-# body = Body(6, 100, "White", initialSpeed=Vector(20, 0))
-# body2 = Body(3, 100, "Blue", Vector(100, 100))
-
-# force = Body.calculateForceVector(body, body2)
-# dt = 0.002
-# print(body.position)
-# body.updateAcceleration(force)
-# body.updateVelocity(dt)
-# body.updatePosition(dt)
-# print(Sprite.collision(body._sprite, body2._sprite))
