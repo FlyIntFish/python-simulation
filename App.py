@@ -67,7 +67,6 @@ class App:
         self.__newBodyVelocity = Vector()
         self.__newBodyRadius = 10
         self.__fps = 0
-        self.__newBodyColor = "white"
         self.__newBodyMass = 100
         self.__MIN_INIT_BODY_VELOCITY = -30.0
         self.__MAX_INIT_BODY_VELOCITY = 30.0
