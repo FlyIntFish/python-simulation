@@ -4,6 +4,8 @@ import tkinter as tk
 from tkinter import *
 import os
 from tkinter import messagebox
+
+from pyparsing import col
 from utility import *
 from tkinter.constants import NSEW
 
@@ -24,7 +26,8 @@ class Gui:
         return cls.__ElementsColors["default_color"]
 
     def __init__(self, root, app : App):
-        self.__INIT_VELOCITY_SLIDERS_LENGTH = 150
+        self.__VELOCITY_SLIDERS_LENGTH = 150
+        self.__TIME_FACTOR_SLIDER_LENGTH = 100
         self.__app = app
         self.__root = root
         self.__menuBar = tk.Menu(self.__root)
@@ -42,6 +45,12 @@ class Gui:
         self.__createToolbar()
         self.__addToolbarButtons()
         self.__initToolbarSliders()
+        self.__initToolbarTextFields()
+
+    def __initToolbarTextFields(self):
+        self.__addToolbarFrameForTextFields()
+        self.__addToolbarMassTextField()
+        self.__addToolbarRadiusTextField()
 
     def placeholder(self):
         pass
@@ -51,8 +60,7 @@ class Gui:
         for image, command in (
                 ("reload.png", self.__app.removeAllBodies),
                 ("play-button.png", self.__app.resume),
-                ("pause-button.png", self.__app.pause),
-                ("settings.png", self.placeholder)):
+                ("pause-button.png", self.__app.pause)):
             image = os.path.join(Gui.__textures_path, image)
             try:
                 image = tk.PhotoImage(file=image)
@@ -66,10 +74,19 @@ class Gui:
 
     def __addToolbarFrameForSliders(self):
         self.__slidersToolbarFrame = tk.Frame(self.__toolbar)
-        self.__slidersToolbarFrame.grid(row=0, column=self.__toolbar.grid_size()[0])
+        self.__slidersToolbarFrame.grid(row=0, column=self.__getToolbarNextColumn())
+
+    def __getToolbarTextFieldsFrameNextColumn(self):
+        return self.__textFieldsToolbarFrame.grid_size()[0]
+
+    def __getToolbarNextColumn(self):
+        return self.__toolbar.grid_size()[0]
+
+    def __getToolbarSlidersFrameNextColumn(self):
+        return self.__slidersToolbarFrame.grid_size()[0]
 
     def __addToolbarSlider(self, from__, to_, command_, labelText_, variable_, length_=None, resolution_=1):
-        newColumn = self.__slidersToolbarFrame.grid_size()[0]
+        newColumn = self.__getToolbarSlidersFrameNextColumn()
         slider = tk.Scale(
             self.__slidersToolbarFrame,
             orient='horizontal',
@@ -81,11 +98,11 @@ class Gui:
             resolution=resolution_
         )
         slider.grid(row=0, column=newColumn)
-        speedFactorLabel = tk.Label(
+        label = tk.Label(
             self.__slidersToolbarFrame,
             text=labelText_
         )
-        speedFactorLabel.grid(row=1, column=newColumn)
+        label.grid(row=1, column=newColumn)
 
     def __addToolbarTimeFactorSlider(self):
         variable=tk.IntVar()
@@ -95,7 +112,7 @@ class Gui:
             command_=lambda event: setattr(self.__app, 'speedFactor', variable.get()),
             labelText_="Speed factor",
             variable_=variable,
-            length_=100
+            length_=self.__TIME_FACTOR_SLIDER_LENGTH
         )
 
     def __addToolbarTrajectoryPointsSlider(self):
@@ -118,7 +135,7 @@ class Gui:
             labelText_="X velocity",
             variable_=variable,
             resolution_=0.2,
-            length_=self.__INIT_VELOCITY_SLIDERS_LENGTH
+            length_=self.__VELOCITY_SLIDERS_LENGTH
         )
 
     def __addToolbarInitVerticalVelocitySlider(self):
@@ -130,8 +147,65 @@ class Gui:
             labelText_="Y velocity",
             variable_=variable,
             resolution_=0.2,
-            length_=self.__INIT_VELOCITY_SLIDERS_LENGTH
+            length_=self.__VELOCITY_SLIDERS_LENGTH
         )
+
+    def __addToolbarTextField(self, labelText):
+        newColumn = self.__getToolbarTextFieldsFrameNextColumn()
+        textField = tk.Entry(
+            self.__textFieldsToolbarFrame
+        )
+        textField.grid(row=1, column=newColumn)
+        label = tk.Label(
+            self.__textFieldsToolbarFrame,
+            text=labelText
+        )
+        label.grid(row=2, column=newColumn)
+        return textField
+
+    def __validateInput(self, field, minValue, maxValue, fieldName):
+        try:
+            val = int(field.get())
+            if val < minValue:
+                field.delete(0, tk.END)
+                field.insert(0,f'{fieldName} has to be > {minValue}')
+            elif val > maxValue:
+                field.delete(0, tk.END)
+                field.insert(0,f'{fieldName} has to be < {maxValue}')
+            else:
+                return True
+            return False
+        except:
+            field.delete(0, tk.END)
+            field.insert(0,'non-integer value passed')
+            return False
+
+    def __massTextFieldCallback(self, field):
+        if self.__validateInput(field, 1, self.__app.MAX_BODY_MASS, "mass"):
+            self.__app.newBodyMass = int(field.get())
+
+    def __radiusTextFieldCallback(self, field):
+        if self.__validateInput(field, 1, self.__app.MAX_BODY_RADIUS, "radius"):
+            self.__app.newBodyRadius = int(field.get())
+
+    def __addToolbarFrameForTextFields(self):
+        self.__textFieldsToolbarFrame = tk.Frame(self.__toolbar)
+        self.__textFieldsToolbarFrame.grid(row=0, column=self.__getToolbarNextColumn(), sticky=NSEW)
+        self.__textFieldsToolbarFrame.rowconfigure(0, weight=1)
+        self.__textFieldsToolbarFrame.rowconfigure(1, weight=1)
+        self.__textFieldsToolbarFrame.rowconfigure(2, weight=1)
+
+    def __addToolbarRadiusTextField(self):
+        field = self.__addToolbarTextField(
+            "Radius"
+        )
+        field.bind("<Return>", lambda event: self.__radiusTextFieldCallback(field))   
+        
+    def __addToolbarMassTextField(self):
+        field = self.__addToolbarTextField(
+            "Mass"
+        )
+        field.bind("<Return>", lambda event: self.__massTextFieldCallback(field))
 
     def __initToolbarSliders(self):
         self.__addToolbarFrameForSliders()

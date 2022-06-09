@@ -56,7 +56,7 @@ class App:
         self.__resetClock()
         self.__MAX_SPEED_FACTOR = 20
         self.__UPDATE_TRAJECTORY_DT = 0.2  
-        self.__MAX_TRAJECTORY_POINTS = 1000
+        self.__MAX_TRAJECTORY_POINTS = 750
         self.__MIN_TRAJECTORY_POINTS = 3
         self.__timeToUpdateTrajectory = self.__UPDATE_TRAJECTORY_DT
         self.__newBodyVelocity = Vector()
@@ -85,6 +85,30 @@ class App:
             forceValue * deltaS.y / distanceValue
         )
         return force
+
+    @property
+    def newBodyRadius(self):
+        return self.__newBodyRadius
+
+    @newBodyRadius.setter
+    def newBodyRadius(self, value):
+        if value <= 0:
+            raise ValueError("Radius cannot be less than 0")
+        if value > self.MAX_BODY_RADIUS:
+            raise ValueError(f'Radius canot be greater than {self.MAX_BODY_RADIUS}')
+        self.__newBodyRadius = value
+
+    @property
+    def newBodyMass(self):
+        return self.__newBodyMass
+
+    @newBodyMass.setter
+    def newBodyMass(self, value):
+        if value <= 0:
+            raise ValueError("Mass cannot be less than 0")
+        if value > self.MAX_BODY_MASS:
+            raise ValueError(f'Mass canot be greater than {self.MAX_BODY_MASS}')
+        self.__newBodyMass = value
 
     @property
     def newBodyVelocity(self):
