@@ -1,8 +1,8 @@
 from __future__ import annotations
-from cProfile import label
 import tkinter as tk
 from tkinter import *
 import os
+from tkinter import filedialog
 from tkinter import messagebox
 
 from pyparsing import col
@@ -12,7 +12,7 @@ from tkinter.constants import NSEW
 class Gui:
 
     __ElementsColors = {
-        "toolbar" : "#000000",
+        "toolbar" : "#F0F0F0",
         "canvas" : "#000000",
         "default_color" : "#FF00FF"
     }   
@@ -35,7 +35,8 @@ class Gui:
         self.__initMenuBar()
         self.__initOptionsBar()
         self.__initToolbar()
-        self.__configureColumnAndRows()
+        self.__initStatusBar()
+        self.__configureRootColumnsAndRows()
 
     def __createToolbar(self):
         self.__toolbar = tk.Frame(self.__root, background=Gui.colorOf("toolbar"))
@@ -52,8 +53,11 @@ class Gui:
         self.__addToolbarMassTextField()
         self.__addToolbarRadiusTextField()
 
-    def placeholder(self):
-        pass
+    def __initStatusBar(self):
+        self.__statusbar = tk.Label(self.__root, text="Running...",
+                                       anchor=tk.W)
+        self.__statusbar.grid(row=2, column=0, sticky=tk.EW)
+
     
     def __addToolbarButtons(self):
         self.__toolbar_images = []
@@ -67,7 +71,7 @@ class Gui:
                 self.__toolbar_images.append(image)
                 button = tk.Button(self.__toolbar, image=image,
                                         command=command)
-                button.grid(row=0, column=self.__toolbar.grid_size()[0])
+                button.grid(row=0, column=self.__toolbar.grid_size()[0], sticky=NSEW)
             except tk.TclError as err:
                 print(err)                                                  # problem with file 
         self.__toolbar.grid(row=0, column=0, columnspan=2, sticky=tk.NSEW)
@@ -231,9 +235,9 @@ class Gui:
         self.__root["menu"] = self.__menuBar
         fileMenu = tk.Menu(self.__menuBar)
         for label, command, shortcut_text, shortcut in (
-                ("New...", self.placeholder, "Ctrl+N", "<Control-n>"),
-                ("Open...", self.__app.resume, "Ctrl+O", "<Control-o>"),
-                ("Save", self.__app.pause, "Ctrl+S", "<Control-s>"),
+                ("New...", self.__app.removeAllBodies, "Ctrl+N", "<Control-n>"),
+                ("Open...", self.__loadFromFile, "Ctrl+O", "<Control-o>"),
+                ("Save", self.__saveToFile, "Ctrl+S", "<Control-s>"),
                 (None, None, None, None),
                 ("Quit", self.quit, "Ctrl+Q", "<Control-q>")):
             if label is None:
@@ -249,11 +253,22 @@ class Gui:
         self.__canvas.bind("<Button-1>", lambda event: self.__app.addUserDefinedCelestialBody(position_=Vector(event.x, event.y)))
         self.__canvas.grid(row=1, column=0, padx=0, pady=0, sticky=NSEW)
 
-    def __configureColumnAndRows(self):
+    def __configureRootColumnsAndRows(self):
         self.__root.columnconfigure(0, weight=10)
         self.__root.rowconfigure(0, weight=1)
         self.__root.rowconfigure(1, weight=999)
 
+    def __loadFromFile(self):
+        filename = tk.filedialog.askopenfilename(parent=self.__root,
+        title="Choose file:",
+        filetypes=[("JSON files", ".json")])
+        self.__app.loadFromFile(filename)
+
+    def __saveToFile(self):
+        filename = tk.filedialog.askopenfilename(parent=self.__root,
+        title="Choose file:",
+        filetypes=[("JSON files", ".json")])
+        self.__app.saveCurrentStateToFile(filename)
 
     def guiLoop(self, func):
         self.__canvas.after(5, func)
@@ -264,6 +279,9 @@ class Gui:
             fill = sprite.color
             )
 
+    def setStatusBarText(self, text):
+        self.__statusbar["text"] = text
+        
     def setSpritePosition(self, spriteId : int, position):      # position as bounding box
         self.__canvas.coords(spriteId, position)
 

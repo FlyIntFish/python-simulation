@@ -44,6 +44,10 @@ class Body:
     def color(self) -> str:
         return self._sprite.color
 
+    @property
+    def sprite(self):
+        return self._sprite
+
     def __updateAcceleration(self, force : Vector):
         deltaAcc = force / self._mass
         self._acceleration = deltaAcc
@@ -57,6 +61,27 @@ class Body:
 
     def updatePosition(self, deltaTime: float):
         self._sprite.move(self._velocity * deltaTime)
+
+    def toDict(self):
+        return {
+            "mass" : self._mass,
+            "radius" : self._sprite.radius,
+            "color" : self._sprite.color,
+            "posX" : self._sprite.position.x,
+            "posY" : self._sprite.position.y,
+            "velX" : self._velocity.x,
+            "velY" : self._velocity.y
+        }
+
+    @staticmethod
+    def createFromDict(data):
+        return Body(
+            int(data["radius"]),
+            int(data["mass"]),
+            data["color"],
+            Vector(int(data["posX"]), int(data["posY"])),
+            Vector(int(data["velX"]), int(data["velY"]))
+        )
 
 # body = Body(6, 100, "White", initialSpeed=Vector(20, 0))
 # body2 = Body(3, 100, "Blue", Vector(100, 100))

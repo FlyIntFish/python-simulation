@@ -1,7 +1,9 @@
+import json
 import tkinter as tk
 import copy
 from Gui import Gui
 from Body import *
+import Colors
 
 class CelestialBody:
 
@@ -44,6 +46,9 @@ class CelestialBody:
     def body(self):
         return self.__body
 
+    def toDict(self):
+        return self.__body.toDict()
+
 class App:
 
     def __init__(self):
@@ -61,12 +66,14 @@ class App:
         self.__timeToUpdateTrajectory = self.__UPDATE_TRAJECTORY_DT
         self.__newBodyVelocity = Vector()
         self.__newBodyRadius = 10
+        self.__fps = 0
         self.__newBodyColor = "white"
-        self.__newBodyMass = 1000
+        self.__newBodyMass = 1
         self.__MIN_INIT_BODY_VELOCITY = -30.0
         self.__MAX_INIT_BODY_VELOCITY = 30.0
         self.__MAX_BODY_RADIUS = 40
-        self.__MAX_BODY_MASS = 10**6                     
+        self.__MAX_BODY_MASS = 10**6
+        self.__secondsToUpdateFpsCounter = 1                    
 
 
     @staticmethod
@@ -97,6 +104,10 @@ class App:
         if value > self.MAX_BODY_RADIUS:
             raise ValueError(f'Radius canot be greater than {self.MAX_BODY_RADIUS}')
         self.__newBodyRadius = value
+
+    @property
+    def fps(self):
+        return self.__fps
 
     @property
     def newBodyMass(self):
@@ -214,6 +225,10 @@ class App:
         id = self.__gui.addSprite(body._sprite)
         self.__celestialBodies.update({id : CelestialBody(body, self)})
 
+    def addExistingCelestialBody(self, cbody : CelestialBody):
+        id = self.__gui.addSprite(cbody.body.sprite)
+        self.__celestialBodies.update({id : CelestialBody(cbody.body, self)})
+
     def __calculateForce(self, bodyId: int):
         force = Vector()
         for id, cbody in self.__celestialBodies.items():
@@ -224,10 +239,19 @@ class App:
 
     def __resetTrajectoryTimer(self):
         self.__timeToUpdateTrajectory = self.__UPDATE_TRAJECTORY_DT / self.__speedFactor        # the faster simulation goes, the rarer we
+
                                                                                                 # want to update trajectory 
+    def __updateFpsCounter(self, deltaTime):
+        self.__secondsToUpdateFpsCounter -= deltaTime
+        if self.__secondsToUpdateFpsCounter <= 0:
+            self.__secondsToUpdateFpsCounter = 1.0
+            self.__gui.setStatusBarText("Fps: "+str(self.__fps))
+            self.__fps = 0
+        self.__fps += 1
 
     def update(self):
         deltaTime = secondsSince(self.__lastTime)
+        self.__updateFpsCounter(deltaTime)
         self.__resetClock()
         if not self.__pause:
             self.__timeAcc += deltaTime
@@ -271,12 +295,41 @@ class App:
             radius=self.__newBodyRadius,
             mass=self.__newBodyMass,
             position=position_,
-            color=self.__newBodyColor,
+            color=Colors.getRandomColor(),
             initSpeed=self.__newBodyVelocity
         )
 
+    def loadFromFile(self, filename):
+        with open(filename, "r") as file:
+            data = file.read()
+        file.close()
+        self.__createBodiesFromJsonFile(data)
         
-    
+    def __createBodiesFromJsonFile(self, data):
+        data = data.split('\n')
+        for i in data:
+            if i:
+                try:
+                    parsed = json.loads(i)
+                    self.addExistingCelestialBody(
+                        CelestialBody(Body.createFromDict(parsed), app))
+                except:
+                    print('err')
+            
+
+    def __createJsonData(self):
+        output = ""
+        for i in self.__celestialBodies.values():
+            output += json.dumps(i.toDict()) + "\n"
+        print(output)
+        return output
+
+    def saveCurrentStateToFile(self, filename):
+        data = self.__createJsonData()
+        with open(filename, 'w') as file:
+            file.write(data)
+
+
     
 
 if __name__ == "__main__":
@@ -287,11 +340,8 @@ if __name__ == "__main__":
     app = App()
     gui = Gui(root, app)
     app.assignGui(gui)
-    app.addCelestialBody(30, 10000, position=Vector(200,300), color="blue", initSpeed=Vector(2,0))
-    app.addCelestialBody(20, 1, position=Vector(800,200), color="green", initSpeed=Vector(6.324,0))
-    app.addCelestialBody(20, 10000, position=Vector(650,200),color="yellow", initSpeed=Vector(6.324,0))
-    app.addCelestialBody(10, 1, position=Vector(200,350),color="grey", initSpeed=Vector(7.324,0))
-    app.addCelestialBody(20, 1, position=Vector(340,250),color="violet", initSpeed=Vector(9.324,0))
+    app.addCelestialBody(20, 10000, position=Vector(0,170),color="yellow", initSpeed=Vector(7,3))
+    app.addCelestialBody(20, 10000, position=Vector(50,150),color="red", initSpeed=Vector(7,-3))
     app.update()
 
     root.mainloop()
