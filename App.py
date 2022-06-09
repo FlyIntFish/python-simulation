@@ -19,7 +19,7 @@ class CelestialBody:
         self.__trajectory = []              # list of points ( list(Vector) )
         self.__trajectoryIDs = []
         self.__app = app                    # handler to app
-    
+
     def updateTrajectory(self):
         self.__trajectory.append(copy.deepcopy(self.__body.position))
         while len(self.__trajectory) > CelestialBody.__maxPointsInTrajectory:
@@ -60,7 +60,7 @@ class App:
         self.__pause = False
         self.__resetClock()
         self.__MAX_SPEED_FACTOR = 40
-        self.__UPDATE_TRAJECTORY_DT = 0.2  
+        self.__UPDATE_TRAJECTORY_DT = 0.2
         self.__MAX_TRAJECTORY_POINTS = 750
         self.__MIN_TRAJECTORY_POINTS = 3
         self.__timeToUpdateTrajectory = self.__UPDATE_TRAJECTORY_DT
@@ -72,7 +72,7 @@ class App:
         self.__MAX_INIT_BODY_VELOCITY = 30.0
         self.__MAX_BODY_RADIUS = 40
         self.__MAX_BODY_MASS = 10**6
-        self.__secondsToUpdateFpsCounter = 1                    
+        self.__secondsToUpdateFpsCounter = 1
 
 
     @staticmethod
@@ -123,7 +123,7 @@ class App:
     @property
     def newBodyVelocity(self):
         return self.__newBodyVelocity
-    
+
     @newBodyVelocity.setter
     def newBodyVelocity(self, velocity : Vector):
         if (velocity.x < self.__MIN_INIT_BODY_VELOCITY
@@ -146,7 +146,7 @@ class App:
     @property
     def MAX_BODY_RADIUS(self):
         return self.__MAX_BODY_RADIUS
-  
+
     @property
     def MAX_BODY_MASS(self):
         return self.__MAX_BODY_MASS
@@ -218,7 +218,7 @@ class App:
 
     def __resetClock(self):
         self.__lastTime = time.time()
-    
+
     def addCelestialBody(self, radius: float, mass: float, position: Vector, color: str, initSpeed: Vector):
         body = Body(radius, mass, color, copy.deepcopy(position), copy.deepcopy(initSpeed))
         id = self.__gui.addSprite(body._sprite)
@@ -239,7 +239,7 @@ class App:
     def __resetTrajectoryTimer(self):
         self.__timeToUpdateTrajectory = self.__UPDATE_TRAJECTORY_DT / self.__speedFactor        # the faster simulation goes, the rarer we
 
-                                                                                                # want to update trajectory 
+                                                                                                # want to update trajectory
     def __updateFpsCounter(self, deltaTime):
         self.__secondsToUpdateFpsCounter -= deltaTime
         if self.__secondsToUpdateFpsCounter <= 0:
@@ -287,7 +287,7 @@ class App:
         return self.__gui.addLine(coords_, color_)
 
     def removeShape(self, shapeId):
-        self.__gui.removeShape(shapeId) 
+        self.__gui.removeShape(shapeId)
 
     def addUserDefinedCelestialBody(self, position_ : Vector):
         self.addCelestialBody(
@@ -303,7 +303,7 @@ class App:
             data = file.read()
         file.close()
         self.__createBodiesFromJsonFile(data)
-        
+
     def __createBodiesFromJsonFile(self, data):
         data = data.split('\n')
         for i in data:
@@ -314,7 +314,7 @@ class App:
                         CelestialBody(Body.createFromDict(parsed), app))
                 except:
                     print('err')
-            
+
 
     def __createJsonData(self):
         output = ""
@@ -329,7 +329,7 @@ class App:
             file.write(data)
 
 
-    
+
 
 if __name__ == "__main__":
     root = tk.Tk()
@@ -342,4 +342,3 @@ if __name__ == "__main__":
     app.update()
 
     root.mainloop()
-    

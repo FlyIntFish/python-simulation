@@ -15,7 +15,7 @@ class Gui:
         "toolbar" : "#F0F0F0",
         "canvas" : "#000000",
         "default_color" : "#FF00FF"
-    }   
+    }
 
     __textures_path = f'{os.getcwd()}\\textures\\'
 
@@ -58,7 +58,7 @@ class Gui:
                                        anchor=tk.W)
         self.__statusbar.grid(row=2, column=0, sticky=tk.EW)
 
-    
+
     def __addToolbarButtons(self):
         self.__toolbar_images = []
         for image, command in (
@@ -73,7 +73,7 @@ class Gui:
                                         command=command)
                 button.grid(row=0, column=self.__toolbar.grid_size()[0], sticky=NSEW)
             except tk.TclError as err:
-                print(err)                                                  # problem with file 
+                print(err)                                                  # problem with file
         self.__toolbar.grid(row=0, column=0, columnspan=2, sticky=tk.NSEW)
 
     def __addToolbarFrameForSliders(self):
@@ -96,7 +96,7 @@ class Gui:
             orient='horizontal',
             from_=from__,
             to=to_,
-            command = command_, 
+            command = command_,
             variable = variable_,
             length=length_,
             resolution=resolution_
@@ -203,8 +203,8 @@ class Gui:
         field = self.__addToolbarTextField(
             "Radius"
         )
-        field.bind("<Return>", lambda event: self.__radiusTextFieldCallback(field))   
-        
+        field.bind("<Return>", lambda event: self.__radiusTextFieldCallback(field))
+
     def __addToolbarMassTextField(self):
         field = self.__addToolbarTextField(
             "Mass"
@@ -217,7 +217,7 @@ class Gui:
         self.__addToolbarTrajectoryPointsSlider()
         self.__addToolbarInitHorizontalVelocitySlider()
         self.__addToolbarInitVerticalVelocitySlider()
-    
+
     def __initOptionsBar(self):
         self.__root["menu"] = self.__menuBar
         fileMenu = tk.Menu(self.__menuBar)
@@ -229,7 +229,7 @@ class Gui:
                 fileMenu.add_command(label=label, underline=0,
                         command=command, accelerator=shortcut_text)
                 self.__root.bind(shortcut, command)
-        self.__menuBar.add_cascade(label="Options", menu=fileMenu, underline=0) 
+        self.__menuBar.add_cascade(label="Options", menu=fileMenu, underline=0)
 
     def __initMenuBar(self):
         self.__root["menu"] = self.__menuBar
@@ -246,7 +246,7 @@ class Gui:
                 fileMenu.add_command(label=label, underline=0,
                         command=command, accelerator=shortcut_text)
                 self.__root.bind(shortcut, command)
-        self.__menuBar.add_cascade(label="File", menu=fileMenu, underline=0) 
+        self.__menuBar.add_cascade(label="File", menu=fileMenu, underline=0)
 
     def __initCanvas(self):
         self.__canvas = tk.Canvas(self.__root, background=Gui.colorOf("canvas"))
@@ -281,7 +281,7 @@ class Gui:
 
     def setStatusBarText(self, text):
         self.__statusbar["text"] = text
-        
+
     def setSpritePosition(self, spriteId : int, position):      # position as bounding box
         self.__canvas.coords(spriteId, position)
 
