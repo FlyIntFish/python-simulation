@@ -242,7 +242,7 @@ class App:
     def __updateFpsCounter(self, deltaTime):
         self.__secondsToUpdateFpsCounter -= deltaTime
         if self.__secondsToUpdateFpsCounter <= 0:
-            self.__secondsToUpdateFpsCounter = 1.0
+            self.__secondsToUpdateFpsCounter = 0.5
             self.__gui.setStatusBarText("Fps: "+str(self.__fps))
             self.__fps = 0
         self.__fps += 1
