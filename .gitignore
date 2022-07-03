@@ -3,6 +3,9 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+# slots for saving
+slot*.json
+
 # C extensions
 *.so
 
