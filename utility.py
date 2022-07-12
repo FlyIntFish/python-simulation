@@ -74,7 +74,3 @@ class Vector:
 
 def secondsSince(time_):
     return (time.time() - time_)
-
-    
-
-    
