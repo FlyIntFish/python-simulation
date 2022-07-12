@@ -68,4 +68,4 @@ COLORS = ['snow', 'ghost white', 'white smoke', 'gainsboro', 'floral white', 'ol
     'gray1', 'gray2', 'gray3', 'gray4', 'gray5']
 
 def getRandomColor():
-    return COLORS[randint(0,len(COLORS))]
+    return COLORS[randint(0,len(COLORS)-1)]

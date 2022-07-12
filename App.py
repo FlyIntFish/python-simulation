@@ -53,7 +53,7 @@ class App:
 
     def __init__(self):
         self.__celestialBodies = {}             # int : CelestialBody
-        self.__maxDeltaTime = 1000.0/20.0       # we don't want to go below 20FPS to avoid inaccurate calculations
+        self.__maxCalculationDeltaTime = 1000.0/20.0       # we don't want to go below 20FPS to avoid inaccurate calculations
         self.__speedFactor = 5
         self.__lastTime = None                  # time since last __resetClock method
         self.__timeAcc = 0                      # accumulator for time
@@ -254,8 +254,8 @@ class App:
         if not self.__pause:
             self.__timeAcc += deltaTime
             self.__timeToUpdateTrajectory -= deltaTime
-            if self.__timeAcc > self.__maxDeltaTime:
-                self.__timeAcc = self.__maxDeltaTime
+            if self.__timeAcc > self.__maxCalculationDeltaTime:
+                self.__timeAcc = self.__maxCalculationDeltaTime
             self.__timeAcc *= self.__speedFactor
 
             if (self.__timeToUpdateTrajectory <= 0):
